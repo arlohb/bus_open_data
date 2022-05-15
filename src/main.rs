@@ -1,5 +1,8 @@
+mod data;
+mod xml_utils;
+
 #[derive(Debug)]
-enum Err {
+pub enum Err {
   Reqwest,
   Xml,
 }
@@ -20,16 +23,32 @@ async fn main() -> Result<(), Err> {
 
   let doc = roxmltree::Document::parse(&text).unwrap();
 
-  let activities = doc.root()
+  let elements = doc.root()
     .first_child().ok_or(Err::Xml)?      // Siri
     .first_child().ok_or(Err::Xml)?      // ServiceDelivery
     .children().nth(2).ok_or(Err::Xml)?  // VehicleMonitoringDelivery
     .children().filter(|node|
       node.tag_name().name() == "VehicleActivity"
-    )
-    .collect::<Vec<_>>();                // VehicleActivity
+    )                                    // VehicleActivity
+    .collect::<Vec<_>>();
+
+  let activities = elements
+    .iter()
+    .map(|node| data::VehicleActivity::from_node(&node))
+    .filter(|option| option.is_some())
+    .map(|option| option.unwrap())
+    .collect::<Vec<_>>();
   
-  println!("{}", activities.len());
+  println!("xml: {}, parsed: {}", elements.len(), activities.len());
+  
+  let mut lines = activities
+    .iter()
+    .map(|activity| activity.monitored_vehicle_journey.line_ref.as_str())
+    .collect::<Vec<_>>();
+  
+  lines.sort();
+  
+  lines.iter().for_each(|line| println!("{}", line));
 
   Ok(())
 }
