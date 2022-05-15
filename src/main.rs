@@ -45,13 +45,39 @@ async fn main() -> Result<(), Err> {
     a.monitored_vehicle_journey.line_ref.cmp(&b.monitored_vehicle_journey.line_ref)
   );
   
+  let mut map = staticmap::StaticMapBuilder::new()
+    .width(6000)
+    .height(9000)
+    .build()
+    .unwrap();
+  
   activities
     .iter()
-    .for_each(|activity| println!("{:4} {:<10} {:<10}",
-      activity.monitored_vehicle_journey.line_ref.as_str(),
-      activity.monitored_vehicle_journey.vehicle_location.latitude,
-      activity.monitored_vehicle_journey.vehicle_location.longitude,
-    ));
+    .for_each(|activity| {
+      let lat = activity.monitored_vehicle_journey.vehicle_location.latitude;
+      let long = activity.monitored_vehicle_journey.vehicle_location.longitude;
+      println!("{:4} {:<10} {:<10}",
+        activity.monitored_vehicle_journey.line_ref.as_str(),
+        lat,
+        long,
+      );
+
+      if lat == 0. || long == 0. {
+        return;
+      }
+
+      map.add_tool(
+        staticmap::tools::CircleBuilder::new()
+          .lat_coordinate(lat)
+          .lon_coordinate(long)
+          .color(staticmap::tools::Color::new(false, 0, 0, 255, 255))
+          .radius(2.)
+          .build()
+          .unwrap()
+      )
+    });
+  
+  map.save_png("staticmap.png").unwrap();
 
   Ok(())
 }
