@@ -46,8 +46,8 @@ async fn main() -> Result<(), Err> {
     );
     
     let mut map = staticmap::StaticMapBuilder::new()
-        .width(6000)
-        .height(9000)
+        .width(1000)
+        .height(1500)
         .build()
         .unwrap();
     

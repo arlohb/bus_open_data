@@ -951,8 +951,6 @@ checksum = "6e63cff320ae2c57904679ba7cb63280a3dc4613885beafb148ee7bf9aa9042d"
 [[package]]
 name = "staticmap"
 version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6a45cfcf5507b0efe837b99a941dc3819f91081614e01ee9a3136ba9640ffd19"
 dependencies = [
  "attohttpc",
  "png",
