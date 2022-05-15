@@ -32,7 +32,7 @@ async fn main() -> Result<(), Err> {
     )                                    // VehicleActivity
     .collect::<Vec<_>>();
 
-  let activities = elements
+  let mut activities = elements
     .iter()
     .map(|node| data::VehicleActivity::from_node(&node))
     .filter(|option| option.is_some())
@@ -40,15 +40,18 @@ async fn main() -> Result<(), Err> {
     .collect::<Vec<_>>();
   
   println!("xml: {}, parsed: {}", elements.len(), activities.len());
+
+  activities.sort_by(|a, b|
+    a.monitored_vehicle_journey.line_ref.cmp(&b.monitored_vehicle_journey.line_ref)
+  );
   
-  let mut lines = activities
+  activities
     .iter()
-    .map(|activity| activity.monitored_vehicle_journey.line_ref.as_str())
-    .collect::<Vec<_>>();
-  
-  lines.sort();
-  
-  lines.iter().for_each(|line| println!("{}", line));
+    .for_each(|activity| println!("{:4} {:<10} {:<10}",
+      activity.monitored_vehicle_journey.line_ref.as_str(),
+      activity.monitored_vehicle_journey.vehicle_location.latitude,
+      activity.monitored_vehicle_journey.vehicle_location.longitude,
+    ));
 
   Ok(())
 }
